@@ -1,5 +1,6 @@
 package br.com.totvs.customermanagement.service;
 
+import br.com.totvs.customermanagement.exception.ClientNotFoundException;
 import br.com.totvs.customermanagement.exception.CpfAlreadyExistsException;
 import br.com.totvs.customermanagement.exception.CpfNotFoundException;
 import br.com.totvs.customermanagement.exception.InvalidCpfException;
@@ -83,6 +84,30 @@ public class ClientService {
                         address.getComplement(), address.getCity(), address.getState(), address.getZipCode()
                 )).toList()
         );
+    }
+
+    /**
+     * Retrieves a client by their CPF and returns a response payload containing their details,
+     * including associated phone numbers and addresses.
+     *
+     * @param cpf the CPF (Cadastro de Pessoa Física) identifier of the client.
+     * @return a {@link ClientResponsePayload} object containing the client's name, CPF,
+     *         a list of their phone numbers, and a list of their addresses.
+     * @throws ClientNotFoundException if no client is found with the given CPF.
+     */
+    public ClientResponsePayload getClientByCpf(String cpf) {
+        Client client = this.clientRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ClientNotFoundException(cpf));
+
+        return new ClientResponsePayload(
+                client.getName(),
+                client.getCpf(),
+                this.phoneRepository.findByClient(client).stream().map(phone ->
+                        new PhoneResponsePayload(phone.getNumber())).toList(),
+                this.addressRepository.findByClient(client).stream().map(
+                        address -> new AddressResponsePayload(
+                                address.getStreet(), address.getComplement(), address.getCity(),
+                                address.getState(), address.getZipCode())).toList());
     }
 
     /**

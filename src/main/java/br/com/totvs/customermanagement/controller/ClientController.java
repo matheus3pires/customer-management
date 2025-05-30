@@ -1,5 +1,6 @@
 package br.com.totvs.customermanagement.controller;
 
+import br.com.totvs.customermanagement.model.Client;
 import br.com.totvs.customermanagement.payload.request.ClientRequestPayload;
 import br.com.totvs.customermanagement.payload.response.ClientResponsePayload;
 import br.com.totvs.customermanagement.service.ClientService;
@@ -39,6 +40,14 @@ public class ClientController {
             @Valid @RequestBody ClientRequestPayload clientRequestPayload) {
         ClientResponsePayload response = this.clientService.createClient(clientRequestPayload);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Get client by CPF")
+    @ApiResponse(responseCode = "200", description = "Client returned successfully")
+    @GetMapping("/{cpf}")
+    public ResponseEntity<ClientResponsePayload> getClientByCpf(@PathVariable String cpf) {
+        ClientResponsePayload client = this.clientService.getClientByCpf(cpf);
+        return ResponseEntity.ok(client);
     }
 
     @Operation(summary = "Get all clients")
